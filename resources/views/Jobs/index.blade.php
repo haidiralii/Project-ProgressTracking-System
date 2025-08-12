@@ -87,8 +87,8 @@
     @if($jobs->isEmpty())
         <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/50 p-12 text-center animate-fade-in" style="animation-delay:0.4s;">
             <div class="max-w-md mx-auto">
-                <div class="w-24 h-24 bg-gradient-to-br from-red-100 to-red-200 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <i class="fas fa-briefcase text-3xl text-red-400"></i>
+                <div class="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-briefcase text-3xl text-gray-400"></i>
                 </div>
                 <h3 class="text-xl font-semibold text-gray-900 mb-2">No Jobs Yet!</h3>
                 <p class="text-gray-500 mb-6">There are no jobs yet. Add one to begin managing your project.</p>

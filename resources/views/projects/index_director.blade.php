@@ -178,7 +178,7 @@
                                 </div>
                             </div>
 
-                            <!-- Message if no jobs -->
+                            <!-- Message if proyek has no jobs -->
                             @unless($hasJobs)
                                 <div class="text-xs text-gray-400 mt-2 italic">
                                     No jobs added yet — progress will show when jobs are assigned.
@@ -206,11 +206,11 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="6" class="px-6 py-12 text-center text-gray-400">
+                    <td colspan="6" class="px-6 py-12 text-center text-gray-900">
                         <div class="flex flex-col items-center">
-                            <i class="fas fa-folder-open text-4xl mb-3 text-maroon"></i>
+                            <i class="fas fa-folder-open text-4xl mb-3 text-gray-400"></i>
                             <div class="font-semibold text-lg mb-2">No Projects Found</div>
-                            <div class="text-sm">Try adjusting your search or filter.</div>
+                            <div class="text-sm text-gray-500">Try adjusting your search or filter.</div>
                         </div>
                     </td>
                 </tr>

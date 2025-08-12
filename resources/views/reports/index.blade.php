@@ -84,8 +84,8 @@
     <!-- Summary Card -->
     <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/50 p-6 mb-6 animate-fade-in" style="animation-delay: 0.2s;">
         <div class="flex items-center gap-4">
-            <div class="w-12 h-12 bg-gradient-to-r from-red-100 to-red-200 rounded-full flex items-center justify-center">
-                <i class="fas fa-chart-bar text-red-600"></i>
+            <div class="w-12 h-12 bg-gradient-to-r from-gray-100 to-gray-200 rounded-full flex items-center justify-center">
+                <i class="fas fa-chart-bar text-gray-400"></i>
             </div>
             <div>
                 <p class="text-sm text-gray-600">Total Activities Found</p>
@@ -99,11 +99,11 @@
         @if(($activities ?? collect())->isEmpty())
             <div class="p-12 text-center">
                 <div class="max-w-md mx-auto">
-                    <div class="w-24 h-24 bg-gradient-to-br from-red-100 to-red-200 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <i class="fas fa-chart-bar text-3xl text-red-400"></i>
+                    <div class="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-chart-bar text-3xl text-gray-400"></i>
                     </div>
                     <h3 class="text-xl font-semibold text-gray-900 mb-2">No Activities Found!</h3>
-                    <p class="text-gray-500 mb-6">There are no recorded activities for the selected filter.</p>
+                    <p class="text-gray-500 mb-6">There are no recorded activities found.</p>
                 </div>
             </div>
         @else

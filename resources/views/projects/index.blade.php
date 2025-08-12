@@ -333,8 +333,8 @@
         </div>
     @empty
         <div class="col-span-full bg-white rounded-xl shadow-lg p-12 text-center animate-fade-in-up" style="animation-delay: 0.5s;">
-            <div class="w-24 h-24 bg-gradient-to-br from-red-100 to-red-200 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i class="fas fa-project-diagram text-3xl text-red-400"></i>
+            <div class="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-project-diagram text-3xl text-gray-400"></i>
             </div>
             <h3 class="text-xl font-semibold text-gray-900 mb-2">No Projects Found</h3>
             <p class="text-gray-500 mb-6">Get started by creating your project</p>
