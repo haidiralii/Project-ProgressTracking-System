@@ -11,7 +11,10 @@ class JobActivityController extends Controller
 {
     public function index(Request $request)
     {
-        $query = JobActivity::with(['job.project', 'user']);
+        $query = JobActivity::with([
+            'job.project',
+            'user'
+        ]);
 
         // Filter by search (activity_note)
         if ($request->filled('search')) {
@@ -33,8 +36,10 @@ class JobActivityController extends Controller
         }
 
         $activities = $query->latest()->get();
-        $projects = \App\Models\Project::all();
-        $operators = \App\Models\User::where('role', 'operator')->get();
+
+        $projects = \App\Models\Project::orderBy('name')->get();
+        $operators = \App\Models\User::where('role', 'operator')->orderBy('name')->get();
+
         return view('activities.index', compact('activities', 'projects', 'operators'));
     }
 

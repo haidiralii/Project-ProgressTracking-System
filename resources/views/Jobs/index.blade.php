@@ -1,5 +1,8 @@
 @extends('layouts.admin')
 
+@section('title', 'ProTrack - Jobs Overview')
+@section('page-title', 'Jobs')
+
 @section('content')
 
     @if($errors->any())
@@ -133,9 +136,14 @@
                                 <!-- column operators -->
                                 <td class="py-4 px-6">
                                     @if($job->operators && $job->operators->count())
+                                        @php
+                                            $maxLength = $job->operators->max(fn($op) => strlen($op->name));
+                                            $minWidth = ($maxLength * 8) + 20;
+                                        @endphp
                                         <div class="flex flex-wrap gap-1">
                                             @foreach($job->operators as $operator)
-                                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-red-100 to-red-200 text-red-700 border border-red-200">
+                                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-red-100 to-red-200 text-red-700 border border-red-200"
+                                                    style="min-width: {{ $minWidth }}px; text-align: center;">
                                                     {{ $operator->name }}
                                                 </span>
                                             @endforeach
@@ -148,70 +156,85 @@
                                 </td>
                                 <!-- column status -->
                                 <td class="py-4 px-6">
+                                    @php
+                                        $maxStatusLength = $jobs->max(fn($j) => strlen($j->status_label));
+                                        $statusMinWidth = ($maxStatusLength * 8) + 20;
+                                    @endphp
+
                                     <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold"
-                                        style="background-color: {{ $job->status_badge['bg'] }}; color: {{ $job->status_badge['text'] }};">
+                                        style="background-color: {{ $job->status_badge['bg'] }};
+                                                color: {{ $job->status_badge['text'] }};
+                                                min-width: {{ $statusMinWidth }}px;
+                                                text-align: center;">
                                         {{ $job->status_label }}
                                     </span>
                                 </td>
                                 <!-- column deadline -->
-                                <td class="py-4 px-6">
+                                <td class="py-4 px-6 text-center whitespace-nowrap">
                                     @if($job->deadline)
-                                        <div class="text-gray-700 font-medium">{{ $job->deadline->format('d M Y') }}</div>
+                                        <span class="text-gray-700 font-medium">
+                                            {{ $job->deadline->format('d M Y') }}
+                                        </span>
                                     @else
                                         <span class="text-gray-400">-</span>
                                     @endif
                                 </td>
                                 <!-- column actions -->
                                 <td class="px-4 py-3 text-sm whitespace-nowrap align-top" style="min-width: 210px;">
-                                <div class="flex flex-wrap justify-center gap-2">
-                                    {{-- View Details --}}
-                                    <a href="{{ route('jobs.show', $job->id) }}"
-                                    class="inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium 
-                                            bg-gray-100 text-gray-700 border border-gray-200 hover:bg-red-50 hover:text-maroon hover:border-red-300 
-                                            transition-all duration-150 hover:scale-105 w-[100px]">
-                                        <i class="fas fa-eye"></i>
-                                        <span class="hidden md:inline">View</span>
-                                    </a>
+                                    <div class="flex flex-wrap justify-center gap-2">
 
-                                    {{-- Update/Edit Job --}}
-                                    @if(auth()->user()->role === 'admin' || (auth()->user()->role === 'operator' && $job->operators->contains(auth()->user()->id)))
-                                        <a href="{{ auth()->user()->role === 'admin' ? route('jobs.edit', $job->id) : route('jobs.update_operator', $job->id) }}"
-                                        class="inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium 
-                                                bg-yellow-50 text-yellow-800 border border-yellow-200 hover:bg-yellow-100 hover:text-yellow-900 hover:border-yellow-300 
+                                        {{-- View Details --}}
+                                        <a href="{{ route('jobs.show', $job->id) }}"
+                                            class="inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium 
+                                                bg-gray-100 text-red-700 border border-red-200
+                                                hover:bg-red-700 hover:text-white hover:border-red-300
                                                 transition-all duration-150 hover:scale-105 w-[100px]">
-                                            <i class="fas fa-edit"></i>
-                                            <span class="hidden md:inline">
-                                                {{ auth()->user()->role === 'admin' ? 'Edit' : 'Update' }}
-                                            </span>
+                                            <i class="fas fa-eye"></i>
+                                            <span class="hidden md:inline">Details</span>
                                         </a>
-                                    @endif
 
-                                    {{-- Mark Complete --}}
-                                    @if(auth()->user()->role === 'operator' && $job->status !== 'selesai' && $job->operators->contains(auth()->user()->id))
-                                        <form action="{{ route('jobs.complete', $job->id) }}" method="POST" class="inline">
-                                            @csrf
-                                            <button type="submit"
+                                        {{-- Update/Edit Job --}}
+                                        @if(auth()->user()->role === 'admin' || (auth()->user()->role === 'operator' && $job->operators->contains(auth()->user()->id)))
+                                            <a href="{{ auth()->user()->role === 'admin' ? route('jobs.edit', $job->id) : route('jobs.update_operator', $job->id) }}"
+                                                class="inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium 
+                                                    bg-yellow-50 text-yellow-700 border border-red-200
+                                                    hover:bg-yellow-600 hover:text-white hover:border-yellow-700
+                                                    transition-all duration-150 hover:scale-105 w-[100px]">
+                                                <i class="fas fa-edit"></i>
+                                                <span class="hidden md:inline">
+                                                    {{ auth()->user()->role === 'admin' ? 'Edit' : 'Update' }}
+                                                </span>
+                                            </a>
+                                        @endif
+
+                                        {{-- Mark Complete --}}
+                                        @if(auth()->user()->role === 'operator' && $job->status !== 'selesai' && $job->operators->contains(auth()->user()->id))
+                                            <form action="{{ route('jobs.complete', $job->id) }}" method="POST" class="inline">
+                                                @csrf
+                                                <button type="submit"
                                                     class="inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium 
-                                                        bg-green-50 text-green-700 border border-green-200 hover:bg-green-100 hover:text-green-800 hover:border-green-300 
+                                                        bg-green-50 text-green-700 border border-green-200
+                                                        hover:bg-green-700 hover:text-white hover:border-green-800
                                                         transition-all duration-150 hover:scale-105 w-[100px]">
-                                                <i class="fas fa-check"></i>
-                                                <span class="hidden md:inline">Done</span>
-                                            </button>
-                                        </form>
-                                    @endif
+                                                    <i class="fas fa-check"></i>
+                                                    <span class="hidden md:inline">Done</span>
+                                                </button>
+                                            </form>
+                                        @endif
 
-                                    {{-- Give Feedback --}}
-                                    @if(auth()->user()->role === 'operator' && $job->status === 'tes' && $job->operators->contains(auth()->user()->id))
-                                        <a href="{{ route('jobs.feedback.create', $job->id) }}"
-                                        class="inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium 
-                                                bg-red-50 text-red-700 border border-red-200 hover:bg-red-100 hover:text-maroon hover:border-red-300 
-                                                transition-all duration-150 hover:scale-105 w-[100px]">
-                                            <i class="fas fa-comment-dots"></i>
-                                            <span class="hidden md:inline">Feedback</span>
-                                        </a>
-                                    @endif
-                                </div>
-                            </td>
+                                        {{-- Give Feedback --}}
+                                        @if(auth()->user()->role === 'operator' && $job->status === 'tes' && $job->operators->contains(auth()->user()->id))
+                                            <a href="{{ route('jobs.feedback.create', $job->id) }}"
+                                                class="inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium 
+                                                    bg-red-50 text-red-700 border border-red-200
+                                                    hover:bg-red-700 hover:text-white hover:border-red-800
+                                                    transition-all duration-150 hover:scale-105 w-[100px]">
+                                                <i class="fas fa-comment-dots"></i>
+                                                <span class="hidden md:inline">Feedback</span>
+                                            </a>
+                                        @endif
+                                    </div>
+                                </td>
                             </tr>
                         @endforeach
                     </tbody>

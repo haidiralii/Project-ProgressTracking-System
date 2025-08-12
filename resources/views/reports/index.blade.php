@@ -1,5 +1,8 @@
 @extends('layouts.admin')
 
+@section('title', 'ProTrack - Reports Overview')
+@section('page-title', 'Reports')
+
 @section('content')
 
 <div class="max-w-full mx-auto px-6">
@@ -61,14 +64,17 @@
                     Apply Filters
                 </button>
 
-                <a href="{{ route('reports.export.excel', request()->all()) }}" 
-                   class="inline-flex items-center gap-2 px-6 py-2.5 bg-gray-100 text-red-700 rounded-xl font-semibold hover:bg-red-50 transition-all duration-200 shadow border border-red-200">
+                <a href="{{ $activities->isNotEmpty() ? route('reports.export.excel', request()->all()) : '#' }}" 
+                class="inline-flex items-center gap-2 px-6 py-2.5 bg-gray-100 text-red-700 rounded-xl font-semibold hover:bg-red-50 transition-all duration-200 shadow border border-red-200
+                        {{ $activities->isEmpty() ? 'opacity-50 cursor-not-allowed pointer-events-none' : '' }}">
                     <i class="fas fa-file-excel"></i>
                     Excel
                 </a>
 
-                <a href="{{ route('reports.export.pdf', request()->all()) }}" 
-                    class="inline-flex items-center gap-2 px-6 py-2.5 bg-gray-100 text-red-700 rounded-xl font-semibold hover:bg-red-50 transition-all duration-200 shadow border border-red-200">                    <i class="fas fa-file-pdf"></i>
+                <a href="{{ $activities->isNotEmpty() ? route('reports.export.pdf', request()->all()) : '#' }}" 
+                    class="inline-flex items-center gap-2 px-6 py-2.5 bg-gray-100 text-red-700 rounded-xl font-semibold hover:bg-red-50 transition-all duration-200 shadow border border-red-200
+                        {{ $activities->isEmpty() ? 'opacity-50 cursor-not-allowed pointer-events-none' : '' }}">
+                    <i class="fas fa-file-pdf"></i>
                     PDF
                 </a>
             </div>
@@ -90,63 +96,72 @@
 
     <!-- Data Table Card -->
     <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/50 overflow-hidden animate-fade-in" style="animation-delay: 0.4s;">
-        <!-- Table Header -->
-        <div class="bg-gradient-to-r from-red-700 to-red-900 px-6 py-4">
-            <div class="flex items-center justify-between">
-                <h3 class="text-lg font-semibold text-white">Reports Data</h3>
-                <div class="text-sm text-white">{{ ($activities ?? collect())->count() }} records found</div>
+        @if(($activities ?? collect())->isEmpty())
+            <div class="p-12 text-center">
+                <div class="max-w-md mx-auto">
+                    <div class="w-24 h-24 bg-gradient-to-br from-red-100 to-red-200 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <i class="fas fa-chart-bar text-3xl text-red-400"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-900 mb-2">No Activities Found!</h3>
+                    <p class="text-gray-500 mb-6">There are no recorded activities for the selected filter.</p>
+                </div>
             </div>
-        </div>
+        @else
 
         <!-- Table Content -->
         <div class="overflow-x-auto">
             <table class="w-full min-w-[900px]">
                 <thead>
                     <tr class="bg-gradient-to-r from-red-50 to-red-100 border-b border-red-200">
-                        <th class="py-4 px-6 font-bold text-red-700 text-center">Project</th>
-                        <th class="py-4 px-6 font-bold text-red-700 text-center">Job</th>
-                        <th class="py-4 px-6 font-bold text-red-700 text-center">Operator</th>  
-                        <th class="py-4 px-6 font-bold text-red-700 text-center">Date</th>
-                        <th class="py-4 px-6 font-bold text-red-700 text-center">Activity Description</th>
+                        <th class="py-3 px-4 text-sm font-bold text-red-700 text-left">Project</th>
+                        <th class="py-3 px-4 text-sm font-bold text-red-700 text-left">Job</th>
+                        <th class="py-3 px-4 text-sm font-bold text-red-700 text-left">Operator</th>
+                        <th class="py-3 px-4 text-sm font-bold text-red-700 text-left">Date</th>
+                        <th class="py-3 px-4 text-sm font-bold text-red-700 text-left">Activity Description</th>
                     </tr>
                 </thead>
+                <!-- Table Body -->
                 <tbody class="divide-y divide-gray-50">
-                    @forelse(($activities ?? []) as $activity)
+                    @foreach($activities as $activity)
                         <tr class="hover:bg-gray-50 transition-all duration-200 group animate-slide-up" style="animation-delay: {{ 0.5 + $loop->index * 0.05 }}s;">
-                            <td class="py-4 px-6 text-center align-middle font-semibold text-gray-900">
+                            <!-- Kolom Project -->
+                            <td class="py-3 px-4 text-sm font-semibold text-gray-900 text-left">
                                 {{ $activity->job->project->name ?? '-' }}
                             </td>
-                            <td class="py-4 px-6 text-center align-middle text-gray-700">
+
+                            <!-- Kolom Job -->
+                            <td class="py-3 px-4 text-sm text-gray-700 text-left">
                                 {{ $activity->job->title ?? '-' }}
                             </td>
-                            <td class="py-4 px-6 text-center align-middle">
-                                <span class="inline-block px-3 py-1 rounded-full bg-gradient-to-r from-red-100 to-red-200 text-red-700 text-xs font-semibold shadow-sm border border-red-200">
+
+                            <!-- Kolom Operator -->
+                            @php
+                                $maxNameLength = collect($activities ?? [])->max(fn($a) => strlen($a->user->name ?? ''));
+                                $minWidthRem = ($maxNameLength * 0.6) + 2; 
+                            @endphp
+                            <td class="py-3 px-4 text-left">
+                                <span class="inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-semibold {{ $activity->user->role_badge_class ?? '' }}"
+                                    style="min-width: {{ $minWidthRem }}rem; text-align: center;">
                                     {{ $activity->user->name ?? '-' }}
                                 </span>
                             </td>
-                            <td class="py-4 px-6 text-center align-middle text-gray-700">
+
+                            <!-- Kolom Tanggal -->
+                            <td class="py-4 px-6 text-gray-700 whitespace-nowrap align-middle">
                                 {{ \Carbon\Carbon::parse($activity->activity_date ?? now())->format('d-m-Y') }}
                             </td>
-                            <td class="py-4 px-6 text-center align-middle">
-                                <span class="block px-3 py-2 rounded bg-gradient-to-r from-red-50 to-red-100 text-red-700 text-xs font-medium shadow border border-red-100">
-                                    {{ $activity->activity_note ?? '-' }}
-                                </span>
+
+                            <!-- Kolom Deskripsi Aktivitas -->
+                            <td class="py-3 px-4 text-sm text-gray-700 text-left">
+                                {{ $activity->activity_note ?? '-' }}
                             </td>
+
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="5" class="px-6 py-12 text-center text-gray-500">
-                                <div class="flex flex-col items-center gap-3">
-                                    <i class="fas fa-inbox text-4xl text-gray-300"></i>
-                                    <p class="text-lg font-medium">No report data found</p>
-                                    <p class="text-sm">Try adjusting your filters or check back later.</p>
-                                </div>
-                            </td>
-                        </tr>
-                    @endforelse
+                    @endforeach
                 </tbody>
             </table>
         </div>
+        @endif
     </div>
 </div>
 

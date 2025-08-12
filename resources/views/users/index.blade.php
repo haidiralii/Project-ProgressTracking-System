@@ -1,5 +1,8 @@
 @extends('layouts.admin')
 
+@section('title', 'ProTrack - Users Overview')
+@section('page-title', 'Users')
+
 @section('content')
 <div class="w-full">
 
@@ -72,17 +75,13 @@
                                 <td class="py-4 px-6 font-semibold text-gray-900">{{ $user->name }}</td>
                                 <td class="py-4 px-6 text-gray-700">{{ $user->email }}</td>
                                 <td class="py-4 px-6">
-                                    <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold
-                                        @if($user->role == 'admin') bg-gradient-to-r from-red-100 to-red-200 text-red-700 border border-red-200
-                                        @elseif($user->role == 'operator') bg-gradient-to-r from-blue-100 to-blue-200 text-blue-700 border border-blue-200
-                                        @elseif($user->role == 'director') bg-gradient-to-r from-yellow-100 to-yellow-200 text-yellow-700 border border-yellow-200
-                                        @else bg-gray-100 text-gray-700 border border-gray-200
-                                        @endif">
+                                    <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold {{ $user->role_badge_class }}">
                                         {{ ucfirst($user->role) }}
                                     </span>
                                 </td>
                                 <td class="py-4 px-6 text-center">
-                                    <a href="{{ route('users.show', $user->id) }}" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-100 text-red-700 hover:bg-red-700 hover:text-white font-medium text-xs transition-all duration-200 border border-red-200 hover:border-red-300">
+                                    <a href="{{ route('users.show', $user->id) }}" 
+                                    class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-100 text-red-700 hover:bg-red-700 hover:text-white font-medium text-xs transition-all duration-200 border border-red-200 hover:border-red-300">
                                         <i class="fas fa-eye"></i> Detail
                                     </a>
                                 </td>

@@ -23,7 +23,7 @@ class ProjectController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Project::query();
+        $query = Project::with('jobs')->orderByDesc('created_at');
 
         // Filter status
         if ($request->filled('status') && $request->status !== 'all') {
@@ -35,7 +35,13 @@ class ProjectController extends Controller
             $query->where('is_starred', true);
         }
 
-        $projects = $query->with('jobs')->orderByDesc('created_at')->get();
+        // Search
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        // Paginate (biar query builder langsung paginate)
+        $projects = $query->paginate(10);
 
         // Hitung progress untuk setiap project
         foreach ($projects as $project) {
@@ -46,12 +52,11 @@ class ProjectController extends Controller
                 : 0;
         }
 
-        // Jika role Director → tampilkan view khusus
+        // View berdasarkan role
         if (auth()->user()->role === 'director') {
             return view('projects.index_director', compact('projects'));
         }
 
-        // Default → Admin & Operator
         return view('projects.index', compact('projects'));
     }
 
@@ -132,6 +137,9 @@ class ProjectController extends Controller
         $project->is_starred = !$project->is_starred;
         $project->save();
 
-        return response()->json(['is_starred' => $project->is_starred]);
+        return response()->json([
+            'success' => true,
+            'is_starred' => $project->is_starred
+        ]);
     }
 }

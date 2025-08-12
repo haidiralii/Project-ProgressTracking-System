@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'ManPro - Director Dashboard')
+@section('title', 'ProTrack - Director Dashboard')
 
 @section('content')
 <style>

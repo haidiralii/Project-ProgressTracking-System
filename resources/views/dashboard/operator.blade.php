@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Operator Dashboard')
+@section('title', 'ProTrack - Operator Dashboard')
 @section('page-title', 'Operator Dashboard')
 
 @section('content')

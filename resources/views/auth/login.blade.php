@@ -191,11 +191,6 @@
         </form>
 
         <div class="mt-6 text-center text-white text-sm">
-            <a href="{{ route('register') }}" 
-            onclick="confirmAdminSignup(event)" 
-            class="underline hover:text-red-200 transition">
-            Create an admin account
-            </a><br>
             <a href="{{ route('password.request') }}" class="underline hover:text-red-200 transition">Forgot password?</a>
         </div>
     </div>

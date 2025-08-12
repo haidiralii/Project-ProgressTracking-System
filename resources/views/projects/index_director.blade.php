@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Projects Overview')
+@section('title', 'ProTrack - Projects Overview')
 
 @section('content')
 <style>

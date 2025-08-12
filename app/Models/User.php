@@ -65,4 +65,17 @@ class User extends Authenticatable
     {
         return $this->hasMany(JobFeedback::class);
     }
+
+    /**
+     * Warna Role badge class untuk tampilan
+     */
+    public function getRoleBadgeClassAttribute()
+    {
+        return match($this->role) {
+            'admin' => 'bg-gradient-to-r from-red-100 to-red-200 text-red-700 border border-red-200',
+            'operator' => 'bg-gradient-to-r from-blue-100 to-blue-200 text-blue-700 border border-blue-200',
+            'director' => 'bg-gradient-to-r from-yellow-100 to-yellow-200 text-yellow-700 border border-yellow-200',
+            default => 'bg-gray-100 text-gray-700 border border-gray-200',
+        };
+    }
 }

@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'ManPro - Projects Overview')
+@section('title', 'ProTrack - Projects Overview')
 @section('page-title', 'Projects')
 @section('page-description', 'Manage and track all your projects in one place.')
 
@@ -62,6 +62,22 @@
     .status-on_hold { background-color: #fee2e2; color: #b91c1c; } /* red-100, red-700 */
     .status-cancelled { background-color: #e5e7eb; color: #4b5563; } /* gray-200, gray-700 */
     
+    /* Starred */
+    @keyframes star-pop {
+        0%   { transform: scale(1); }
+        50%  { transform: scale(1.4); }
+        100% { transform: scale(1); }
+    }
+    .animate-star {
+        animation: star-pop 0.5s ease;
+    }
+    .starred {
+        color: gold !important;
+    }
+    .unstarred {
+        color: #ccc !important;
+    }
+
 </style>
 
 
@@ -98,6 +114,8 @@
         <form method="GET" action="{{ route('projects.index') }}"
               class="flex flex-wrap gap-4 items-center w-full sm:w-auto animate-fade-in-up"
               style="animation-delay:0.3s;">
+              
+            <!-- Status Filter -->
             <select name="status" class="rounded-xl border px-4 py-2 text-sm pr-8 min-w-max shadow transition-all duration-300 hover:scale-105 hover:shadow-lg">
                 <option value="all" {{ request('status') == 'all' ? 'selected' : '' }}>All Status</option>
                 <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
@@ -105,10 +123,19 @@
                 <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed</option>
                 <option value="on_hold" {{ request('status') == 'on_hold' ? 'selected' : '' }}>On Hold</option>
             </select>
+            
+            <!-- Starred -->
             <select name="starred" class="rounded-xl border px-4 py-2 text-sm pr-8 min-w-max shadow transition-all duration-300 hover:scale-105 hover:shadow-lg">
                 <option value="" {{ request('starred') == '' ? 'selected' : '' }}>All Projects</option>
                 <option value="1" {{ request('starred') == '1' ? 'selected' : '' }}>Starred Only</option>
             </select>
+
+            <!-- Search -->
+            <input type="text" name="search" value="{{ request('search') }}"
+                placeholder="Search project..."
+                class="rounded-xl border px-4 py-2 text-sm w-48 shadow transition-all duration-300 hover:scale-105 hover:shadow-lg" />
+
+            <!-- Apply Filter Button -->
             <button
                 type="submit"
                 class="px-6 py-2 text-white rounded-xl font-semibold shadow-md transition-all duration-300 hover:scale-105 hover:shadow-lg animate-fade-in-up"
@@ -290,16 +317,16 @@
                         @endif
                     </div>
                     @if(auth()->user()->role === 'admin')
-                        <div class="flex items-center space-x-2">
-                            <button class="star-toggle p-2 text-gray-400 hover:text-yellow-500 hover:bg-gray-100 rounded-lg transition duration-200"
-                                    data-id="{{ $project->id }}">
-                                @if($project->is_starred)
-                                    <i class="fas fa-star text-yellow-500"></i>
-                                @else
-                                    <i class="far fa-star"></i>
-                                @endif
-                            </button>
-                        </div>
+                    <div class="flex items-center space-x-2">
+                        <button class="star-toggle p-2 hover:bg-gray-100 rounded-lg transition duration-200"
+                                data-id="{{ $project->id }}">
+                            @if($project->is_starred)
+                                <i class="fas fa-star text-yellow-500 starred"></i>
+                            @else
+                                <i class="far fa-star text-gray-400 unstarred"></i>
+                            @endif
+                        </button>
+                    </div>
                     @endif
                 </div>
             </div>
@@ -330,56 +357,40 @@ document.addEventListener('DOMContentLoaded', function() {
     const listBtn = document.getElementById('listViewBtn');
     const projectsGrid = document.getElementById('projectsGrid');
 
-    // Ganti tampilan berdasarkan URL param
+    // ===== VIEW TOGGLE =====
     const currentView = new URLSearchParams(window.location.search).get('view');
-    if (currentView === 'list') {
-        projectsGrid.classList.remove('md:grid-cols-2', 'lg:grid-cols-3');
-        projectsGrid.classList.add('grid-cols-1');
-        listBtn.classList.add('text-maroon', 'bg-gray-100');
-        gridBtn.classList.remove('text-maroon', 'bg-gray-100');
-    } else {
+    function setGridView() {
         projectsGrid.classList.remove('grid-cols-1');
         projectsGrid.classList.add('md:grid-cols-2', 'lg:grid-cols-3');
         gridBtn.classList.add('text-maroon', 'bg-gray-100');
         listBtn.classList.remove('text-maroon', 'bg-gray-100');
     }
+    function setListView() {
+        projectsGrid.classList.remove('md:grid-cols-2', 'lg:grid-cols-3');
+        projectsGrid.classList.add('grid-cols-1');
+        listBtn.classList.add('text-maroon', 'bg-gray-100');
+        gridBtn.classList.remove('text-maroon', 'bg-gray-100');
+    }
+    if (currentView === 'list') setListView(); else setGridView();
 
-    // Update URL saat tombol tampilan diklik
     function updateUrlParam(param, value) {
         const url = new URL(window.location.href);
-        if (value) {
-            url.searchParams.set(param, value);
-        } else {
-            url.searchParams.delete(param);
-        }
+        if (value) url.searchParams.set(param, value);
+        else url.searchParams.delete(param);
         window.history.pushState({ path: url.href }, '', url.href);
     }
 
-    gridBtn.addEventListener('click', function() {
-        if (!projectsGrid.classList.contains('md:grid-cols-2')) {
-            projectsGrid.classList.remove('grid-cols-1');
-            projectsGrid.classList.add('md:grid-cols-2', 'lg:grid-cols-3');
-            gridBtn.classList.add('text-maroon', 'bg-gray-100');
-            listBtn.classList.remove('text-maroon', 'bg-gray-100');
-            updateUrlParam('view', 'grid');
-        }
-    });
+    gridBtn.addEventListener('click', () => { setGridView(); updateUrlParam('view', 'grid'); });
+    listBtn.addEventListener('click', () => { setListView(); updateUrlParam('view', 'list'); });
 
-    listBtn.addEventListener('click', function() {
-        if (!projectsGrid.classList.contains('grid-cols-1')) {
-            projectsGrid.classList.remove('md:grid-cols-2', 'lg:grid-cols-3');
-            projectsGrid.classList.add('grid-cols-1');
-            listBtn.classList.add('text-maroon', 'bg-gray-100');
-            gridBtn.classList.remove('text-maroon', 'bg-gray-100');
-            updateUrlParam('view', 'list');
-        }
-    });
-
-    // Toggle bintang
+    // ===== STAR TOGGLE =====
     document.querySelectorAll('.star-toggle').forEach(btn => {
         btn.addEventListener('click', function(e) {
             e.preventDefault();
+
             const id = this.dataset.id;
+            const icon = this.querySelector('i');
+
             fetch(`/projects/${id}/toggle-star`, {
                 method: 'POST',
                 headers: {
@@ -389,12 +400,25 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(res => res.json())
             .then(data => {
-                this.innerHTML = data.is_starred
-                    ? '<i class="fas fa-star text-yellow-500"></i>'
-                    : '<i class="far fa-star"></i>';
-            });
+                if (data.success) {
+                    // Update ikon sesuai status terbaru
+                    if (data.is_starred) {
+                        icon.classList.remove('far', 'unstarred', 'text-gray-400');
+                        icon.classList.add('fas', 'starred', 'text-yellow-500');
+                    } else {
+                        icon.classList.remove('fas', 'starred', 'text-yellow-500');
+                        icon.classList.add('far', 'unstarred', 'text-gray-400');
+                    }
+
+                    // Tambah animasi pop
+                    icon.classList.add('animate-star');
+                    setTimeout(() => icon.classList.remove('animate-star'), 500);
+                }
+            })
+            .catch(err => console.error('Error toggling star:', err));
         });
     });
 });
 </script>
 @endpush
+

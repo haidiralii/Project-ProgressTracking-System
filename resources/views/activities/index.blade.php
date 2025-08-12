@@ -1,14 +1,16 @@
 @extends('layouts.admin')
 
+@section('title', 'ProTrack - Activity Overview')
+@section('page-title', 'activities')
+
 @section('content')
 <div class="max-w-full mx-auto">
 
     <!-- Filter/Search Card -->
     <div class="w-full">
-        <form method="GET" action="" class="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-xl border border-white/50 animate-fade-in
-            mx-auto mt-0 mb-6
-            lg:max-w-[98%] lg:mx-auto
-            ">
+        <form method="GET" action="" class="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-xl border border-white/50 animate-fade-in mx-auto mt-0 mb-6 lg:max-w-[98%] lg:mx-auto">
+            
+            <!-- Filter Header -->
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-lg font-semibold text-red-700 flex items-center gap-2">
                     <i class="fas fa-filter text-red-600"></i>
@@ -26,6 +28,8 @@
                 </div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+
+                <!-- Search Input -->
                 <div class="space-y-2">
                     <label class="text-sm font-medium text-gray-700">Search Activities</label>
                     <div class="relative">
@@ -33,6 +37,8 @@
                         <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                     </div>
                 </div>
+
+                <!-- Status Filter -->
                 <div class="space-y-2">
                     <label class="text-sm font-medium text-gray-700">Project</label>
                     <select name="project" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white transition-all duration-200">
@@ -42,6 +48,9 @@
                         @endforeach
                     </select>
                 </div>
+
+                <!-- Operator Filter -->
+                @unless(auth()->user()->role === 'operator')
                 <div class="space-y-2">
                     <label class="text-sm font-medium text-gray-700">Operator</label>
                     <select name="operator" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white transition-all duration-200">
@@ -51,6 +60,8 @@
                         @endforeach
                     </select>
                 </div>
+                @endunless
+
                 <div class="space-y-2">
                     <label class="text-sm font-medium text-gray-700">Date</label>
                     <input type="date" name="date" value="{{ request('date') }}" class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white transition-all duration-200" />
@@ -73,46 +84,85 @@
                 </div>
             </div>
             <div class="overflow-x-auto">
-                <table class="w-full min-w-[900px]">
-                    <thead>
-                        <tr class="bg-gradient-to-r from-red-50 to-red-100 border-b border-red-200">
-                            <th class="py-4 px-6 font-bold text-red-700 text-center">Project</th>
-                            <th class="py-4 px-6 font-bold text-red-700 text-center">Job</th>
-                            <th class="py-4 px-6 font-bold text-red-700 text-center">Operator</th>
-                            <th class="py-4 px-6 font-bold text-red-700 text-center">Date</th>
-                            <th class="py-4 px-6 font-bold text-red-700 text-center">Activity</th>
+                <table class="min-w-full bg-white rounded-xl overflow-hidden">
+                    <thead class="bg-red-50">
+                        <tr>
+                            <th class="py-3 px-6 text-left font-semibold text-red-600">Job Title</th>
+                            <th class="py-3 px-6 text-left font-semibold text-red-600">Project</th>
+                            <th class="py-3 px-6 text-left font-semibold text-red-600">Operator</th>
+                            <th class="py-3 px-6 text-left font-semibold text-red-600">Status</th>
+                            <th class="py-3 px-6 text-left font-semibold text-red-600">Date</th>
+                            <th class="py-3 px-6 text-left font-semibold text-red-600">Actions</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-50">
+                    <tbody class="divide-y divide-gray-100">
                         @forelse($activities as $activity)
-                            <tr class="hover:bg-gray-50 transition-all duration-200 group animate-slide-up" style="animation-delay: {{ 0.5 + $loop->index * 0.05 }}s;">
-                                <td class="py-4 px-6 text-center align-middle font-semibold text-gray-900">{{ $activity->job->project->name ?? '-' }}</td>
-                                <td class="py-4 px-6 text-center align-middle text-gray-700">{{ $activity->job->title ?? '-' }}</td>
-                                <td class="py-4 px-6 text-center align-middle">
-                                    <span class="inline-block px-3 py-1 rounded-full bg-gradient-to-r from-red-100 to-red-200 text-red-700 text-xs font-semibold shadow-sm border border-red-200">{{ $activity->user->name ?? '-' }}</span>
+                            <tr>
+                                <!-- Job Title -->
+                                <td class="py-4 px-6 font-medium text-gray-900">
+                                    {{ optional($activity->job)->title ?? '-' }}
                                 </td>
-                                <td class="py-4 px-6 text-center align-middle text-gray-700">{{ \Carbon\Carbon::parse($activity->activity_date)->format('d-m-Y') }}</td>
-                                <td class="py-4 px-6 text-center align-middle">
-                                    <div class="flex items-center justify-between gap-2">
-                                        <span class="block px-3 py-2 rounded bg-gradient-to-r from-red-50 to-red-100 text-red-700 text-xs font-medium shadow flex-1 text-left border border-red-100">
-                                            {{ $activity->activity_note ?? '-' }}
+
+                                <!-- Project -->
+                                <td class="py-4 px-6 text-gray-700">
+                                    {{ optional(optional($activity->job)->project)->name ?? '-' }}
+                                </td>
+
+                                <!-- Operator -->
+                                <td class="py-4 px-6">
+                                    @if($activity->user)
+                                        <span class="inline-flex justify-center items-center px-3 py-1 rounded-full text-sm bg-red-100 text-red-800 min-w-[120px]">
+                                            {{ $activity->user->name }}
                                         </span>
-                                        @if(auth()->user()->role === 'admin' || auth()->user()->role === 'operator')
-                                            <a href="{{ route('activities.show', $activity->id) }}" 
-                                               class="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-gray-100 text-gray-700 hover:bg-red-700 hover:text-white font-semibold text-xs shadow-sm transition border border-gray-200 ml-2 whitespace-nowrap">
-                                                <i class="fas fa-eye"></i> Detail
-                                            </a>
-                                        @endif
-                                    </div>
+                                    @else
+                                        <span class="text-gray-400">-</span>
+                                    @endif
                                 </td>
+
+                                <!-- Status -->
+                                @php
+                                    $maxStatusLength = $activities->max(fn($a) => strlen($a->status_label));
+                                    $statusMinWidth = ($maxStatusLength * 8) + 20;
+                                @endphp
+
+                                <td class="py-4 px-6">
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold"
+                                        style="background-color: {{ $activity->status_badge['bg'] }};
+                                            color: {{ $activity->status_badge['text'] }};
+                                            min-width: {{ $statusMinWidth }}px;
+                                            text-align: center;">
+                                        {{ $activity->status_label }}
+                                    </span>
+                                </td>
+
+                                <!-- Date -->
+                                <td class="py-4 px-6 text-gray-700 whitespace-nowrap align-middle">
+                                    {{ \Carbon\Carbon::parse($activity->activity_date)->format('d M Y') }}
+                                </td>
+
+                                <!-- Actions -->
+                                <td class="py-4 px-6">
+                                    <a href="{{ route('activities.show', $activity->id) }}"
+                                        class="inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-md text-sm font-medium 
+                                            bg-gray-100 text-red-700 border border-red-200
+                                            hover:bg-red-700 hover:text-white hover:border-red-300
+                                            transition-all duration-150 hover:scale-105 w-[100px]">
+                                            <i class="fas fa-eye"></i>
+                                        <span class="hidden md:inline">Details</span>
+                                    </a>
+                                </td>
+
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="px-6 py-6 text-center text-gray-500 mb-6">No activity logs found.</td>
+                                <td colspan="6" class="py-4 px-6 text-center text-gray-500">
+                                    No activities found.
+                                </td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
+
             </div>
         </div>
     </div>
