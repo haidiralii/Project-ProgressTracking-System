@@ -15,8 +15,6 @@
 # Hak akses masing-masing role
 - Admin: Mengelola proyek, job, aktivitas, user, dan laporan.
 - Director: Melihat progress proyek dan job yang ditugaskan ke operator, dan laporan.
-<<<<<<< HEAD
 - Operator: Melihat proyek yang tersedia, mengelola job yang ditugaskan, mencatat aktivitas dan melihat laporan masing-masing.
-=======
 - Operator: Melihat proyek yang tersedia, mengelola job yang ditugaskan, mencatat aktivitas dan melihat laporan masing-masing.
->>>>>>> d11332e (commit 1: Laravel ProTrack App)
+
